@@ -1,27 +1,27 @@
-public class favoriteBooks 
+public class FavoriteBooks 
 {
   private String name; 
   private String author; 
   private int year; 
 
-public favoriteBooks (String n; String a; int y)
+  public FavoriteBooks (String n, String a, int y)
   {  
-  name = n;
-  author = a;
-  year = y;
+    name = n;
+    author = a;
+    year = y;
   }
-}
-public static void main(String[] )
+
+  public static void main(String[] args)
   {
-book a = new favoriteBooks("Effective Java", "Joshua Bloch", 2018);
-book b = new favoriteBooks ("Head First Java", "Kathy Sierra", 2005);
-static int favoriteBooks = 0; 
-int counter = 0; 
+    FavoriteBooks a = new FavoriteBooks("Effective Java", "Joshua Bloch", 2018);
+    FavoriteBooks b = new FavoriteBooks("Head First Java", "Kathy Sierra", 2005);
+    int favoriteBooks = 0; 
+    int counter = 0; 
+  }
 
-favoriteBooks ()
-{ 
-  favoriteBooks ++; 
-  counter = favoriteBoooks; 
+  public FavoriteBooks ()
+  { 
+    favoriteBooks ++; 
+    counter = favoriteBooks; 
   }
 }
-
