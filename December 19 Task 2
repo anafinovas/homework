@@ -1,27 +1,23 @@
-public class Counter 
+ public class Counter 
 {
   private String name; 
   private String author; 
-  private int year; 
+  private int year;
+  public static int count;
 
-  public FavoriteBooks (String n, String a, int y)
+  public Counter (String n, String a, int y)
   {  
     name = n;
     author = a;
     year = y;
+    count ++ ;
+    int instanceCount = count; 
+    System.out.println(instanceCount);
   }
 
   public static void main(String[] args)
   {
-    FavoriteBooks a = new FavoriteBooks("Effective Java", "Joshua Bloch", 2018);
-    FavoriteBooks b = new FavoriteBooks("Head First Java", "Kathy Sierra", 2005);
-    int favoriteBooks = 0; 
-    int counter = 0; 
-  }
-
-  public FavoriteBooks ()
-  { 
-    favoriteBooks ++; 
-    counter = favoriteBooks; 
+    Counter a = new Counter("Effective Java", "Joshua Bloch", 2018);
+    Counter b = new Counter("Head First Java", "Kathy Sierra", 2000);
   }
 }
