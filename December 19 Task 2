@@ -1,0 +1,27 @@
+public class favoriteBooks 
+{
+  private String name; 
+  private String author; 
+  private int year; 
+
+public favoriteBooks (String n; String a; int y)
+  {  
+  name = n;
+  author = a;
+  year = y;
+  }
+}
+public static void main(String[] )
+  {
+book a = new favoriteBooks("Effective Java", "Joshua Bloch", 2018);
+book b = new favoriteBooks ("Head First Java", "Kathy Sierra", 2005);
+static int favoriteBooks = 0; 
+int counter = 0; 
+
+favoriteBooks ()
+{ 
+  favoriteBooks ++; 
+  counter = favoriteBoooks; 
+  }
+}
+
