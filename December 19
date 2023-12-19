@@ -1,0 +1,22 @@
+public class Person
+{
+  {
+String name;
+String age; 
+return name;
+return age; 
+Public string getName();
+Public string getAge();
+  }
+}
+public static void main(String[] args)
+{
+  {
+if (age < 0)
+{
+  return false;
+}
+else 
+{
+  return age;
+}
