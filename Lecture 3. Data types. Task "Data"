@@ -1,1 +1,31 @@
+//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
+// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+public class Person
+{
+    String name;
+    int age;
+    double height;
+    boolean is_student;
+
+    public Person(String name, int age, double height, boolean is_student) {
+
+        this.name = name;
+        this.age = age;
+        this.height = height;
+        this.is_student = is_student;
+    }
+
+    public static void main(String[] args) {
+
+        Person person1 = new Person("Jack", 25, 175.0, true);
+
+        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
+        // to see how IntelliJ IDEA suggests fixing it.
+
+        System.out.println("Person's name: "  + person1.name);
+        System.out.println("Person's age: " + person1.age);
+        System.out.println("Person's height: " + person1.height);
+        System.out.println("Student: " + person1.is_student);
+    }
+    }
 
