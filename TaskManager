@@ -1,0 +1,103 @@
+//importing the Scanner and the ArrayList class and the List interface from the java.util package
+import java.util.Scanner;
+import java.util.List;
+import java.util.ArrayList;
+
+//creating TasksMenu class to manage a user interface, the constructor of the TasksMenu contains  a list of objects of class Task
+public class TasksMenu {
+    private final List<Task> tasks;
+
+    public TasksMenu(List<Task> tasks) {
+        this.tasks = tasks;
+    }
+//creating viewTasks() method
+    public void viewTasks() {
+        System.out.println("Your tasks:");
+        for (int i = 0; i < tasks.size(); i++) {
+            Task task = tasks.get(i);
+            System.out.println((i + 1) + ". " + task.getName() + " - Done: " + task.isDone());
+        }
+    }
+//creating addTask() method
+    public void addTask(String taskName) {
+        Task newTask = new Task(taskName);
+        tasks.add(newTask);
+        System.out.println("Task added: " + taskName);
+    }
+//creating markTaskAsDone() method
+    public void markTaskAsDone(int taskIndex) {
+        if (taskIndex >= 0 && taskIndex < tasks.size()) {
+            Task task = tasks.get(taskIndex);
+            task.setDone(true);
+            System.out.println("Task marked as done: " + task.getName());
+        } else {
+            System.out.println("Invalid task index.");
+        }
+    }
+
+//main method
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        List<Task> tasks = new ArrayList<>();
+        TasksMenu tasksMenu = new TasksMenu(tasks);
+//creating the menu interface
+        while (true) {
+            System.out.println("Options:");
+            System.out.println("1. View tasks");
+            System.out.println("2. Add task ");
+            System.out.println("3. Mark task as done");
+            System.out.println("4. Exit");
+            System.out.print("Enter your choice (1-4): ");
+
+            int choice = scanner.nextInt();
+//using the switch method for interacting with user
+            switch (choice) {
+                case 1:
+                    tasksMenu.viewTasks();
+                    break;
+                case 2:
+                    System.out.print("Enter the task: ");
+                    scanner.nextLine();  // Consume the newline character left by nextInt()
+                    String taskName = scanner.nextLine();
+                    tasksMenu.addTask(taskName);
+                    break;
+                case 3:
+                    System.out.print("Enter the index of the task to mark as done: ");
+                    int taskIndex = scanner.nextInt();
+                    tasksMenu.markTaskAsDone(taskIndex - 1); // Adjust index to match the displayed list
+                    break;
+                case 4:
+                    System.out.println("Exiting the program. Goodbye!");
+                    scanner.close();  // Close only the scanner, not System.in
+                    System.exit(0);
+                default:
+                    System.out.println("Invalid choice. Please enter a number between 1 and 4.");
+            }
+        }
+    }
+}
+
+
+
+
+//creating a Task class with relevant methods
+class Task {
+    private final String name;
+    private boolean isDone;
+
+    public Task(String name) {
+        this.name = name;
+        this.isDone = false; // Tasks are initially not done
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean isDone() {
+        return isDone;
+    }
+    public void setDone(boolean done) {
+        isDone = done;
+    }
+}
