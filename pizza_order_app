@@ -1,0 +1,278 @@
+import java.sql.*;
+
+public class PizzaOrderApp {
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/pizza_order_db";
+    private static final String DB_USER = "Budapest";
+    private static final String DB_PASSWORD = "Budapest2024!";
+
+    public static void main(String[] args) {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+                PizzaOrderSQLDatabase sqlDatabase = new PizzaOrderSQLDatabase(connection);
+                PizzaOrderMenu pizzaOrderMenu = new PizzaOrderMenu(sqlDatabase);
+                pizzaOrderMenu.startOrdering();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+}
+import java.util.Map;
+import java.util.Scanner;
+
+public class PizzaOrderMenu {
+    private PizzaOrderSQLDatabase sqlDatabase;
+    private Scanner scanner;
+
+    public PizzaOrderMenu(PizzaOrderSQLDatabase sqlDatabase) {
+        this.sqlDatabase = sqlDatabase;
+        this.scanner = new Scanner(System.in);
+    }
+
+    public void startOrdering() {
+        while (true) {
+            displayOrderMenu();
+            int mainChoice = getChoice();
+
+            switch (mainChoice) {
+                case 1:
+                    choosePizza();
+                    break;
+                case 0:
+                    System.out.println("Goodbye!");
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private void displayOrderMenu() {
+        System.out.println("Order Menu:");
+        System.out.println("1. Choose Pizza");
+        System.out.println("0. Exit");
+        System.out.print("Enter your choice: ");
+    }
+
+    private void choosePizza() {
+        displayPizzaTypes();
+        System.out.print("Enter Pizza ID (or 0 to exit): ");
+        int pizzaId = getChoice();
+
+        if (pizzaId == 0) {
+            System.out.println("Exiting pizza selection.");
+            return;
+        }
+
+        Map<Integer, String> pizzaTypeNameMap = sqlDatabase.getPizzaTypes();
+        String pizzaTypeName = pizzaTypeNameMap.get(pizzaId);
+        if (pizzaTypeName != null) {
+            System.out.println("You've chosen Pizza ID: " + pizzaId + " - " + pizzaTypeName);
+
+            // Choose Toppings
+            chooseToppings();
+
+            // Display Price
+            double totalPrice = calculateTotalPrice(pizzaId);
+            System.out.println("Total Price: $" + totalPrice);
+
+            // Place Order
+            placeOrder(pizzaTypeName);
+        } else {
+            System.out.println("Invalid Pizza ID. Please choose a valid ID.");
+        }
+    }
+
+    private void displayPizzaTypes() {
+        System.out.println("Available Pizza Types:");
+        Map<Integer, String> pizzaTypes = sqlDatabase.getPizzaTypes();
+        for (Map.Entry<Integer, String> entry : pizzaTypes.entrySet()) {
+            int id = entry.getKey();
+            String typeName = entry.getValue();
+            System.out.println(id + ". " + typeName);
+        }
+    }
+
+    private void chooseToppings() {
+        System.out.println("Choose Toppings (Enter 0 to skip):");
+        Map<Integer, String> toppings = sqlDatabase.getIngredients();
+        for (Map.Entry<Integer, String> entry : toppings.entrySet()) {
+            int id = entry.getKey();
+            String toppingName = entry.getValue();
+            System.out.println(id + ". " + toppingName);
+        }
+
+        // Add logic to handle topping selection if needed
+    }
+
+    private double calculateTotalPrice(int pizzaId) {
+        // Add logic to calculate total price based on pizza type and toppings
+        // Placeholder, replace with actual implementation
+        return 0.0;
+    }
+
+    private void placeOrder(String pizzaTypeName) {
+        System.out.println("Place Order for " + pizzaTypeName + "? (Enter 1 to place order, 0 to cancel): ");
+        int choice = getChoice();
+
+        if (choice == 1) {
+            System.out.println("Order Placed! You ordered a " + pizzaTypeName + " pizza.");
+        } else {
+            System.out.println("Order canceled.");
+        }
+    }
+
+    private int getChoice() {
+        while (!scanner.hasNextInt()) {
+            System.out.println("Invalid input. Please enter a number.");
+            scanner.next();
+        }
+        return scanner.nextInt();
+    }
+}
+import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
+
+public class PizzaOrderSQLDatabase {
+    private Connection connection;
+
+    public PizzaOrderSQLDatabase(Connection connection) {
+        this.connection = connection;
+        initializeDatabase();
+    }
+
+    private void initializeDatabase() {
+        createPizzaTypeTable();
+        createIngredientTable();
+        createPizzaOrderTable();
+    }
+
+    private void createPizzaTypeTable() {
+        try (Statement statement = connection.createStatement()) {
+            String createTableSQL = "CREATE TABLE IF NOT EXISTS PizzaType (" +
+                    "type_id INT PRIMARY KEY AUTO_INCREMENT," +
+                    "name VARCHAR(50) NOT NULL," +
+                    "price DECIMAL(10, 2) NOT NULL DEFAULT 0.00)";
+            statement.executeUpdate(createTableSQL);
+        } catch (SQLException e) {
+            handleSQLException(e);
+        }
+    }
+
+    private void createIngredientTable() {
+        try (Statement statement = connection.createStatement()) {
+            String createTableSQL = "CREATE TABLE IF NOT EXISTS Ingredient (" +
+                    "ingredient_id INT PRIMARY KEY AUTO_INCREMENT," +
+                    "name VARCHAR(50) NOT NULL)";
+            statement.executeUpdate(createTableSQL);
+        } catch (SQLException e) {
+            handleSQLException(e);
+        }
+    }
+
+    private void createPizzaOrderTable() {
+        try (Statement statement = connection.createStatement()) {
+            String createTableSQL = "CREATE TABLE IF NOT EXISTS PizzaOrder (" +
+                    "order_id INT PRIMARY KEY AUTO_INCREMENT," +
+                    "pizza_type_id INT," +
+                    "ingredient_id INT," +
+                    "status VARCHAR(50) DEFAULT 'Order'," +
+                    "total_price DECIMAL(10, 2) DEFAULT 0.00)";
+            statement.executeUpdate(createTableSQL);
+        } catch (SQLException e) {
+            handleSQLException(e);
+        }
+    }
+
+    public Map<Integer, String> getPizzaTypes() {
+        Map<Integer, String> pizzaTypesMap = new HashMap<>();
+        try (Statement statement = connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM PizzaType");
+            while (resultSet.next()) {
+                int id = resultSet.getInt("type_id");
+                String name = resultSet.getString("name");
+                pizzaTypesMap.put(id, name);
+            }
+        } catch (SQLException e) {
+            handleSQLException(e);
+        }
+        return pizzaTypesMap;
+    }
+
+    public double getPizzaPrice(int pizzaTypeId) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT price FROM PizzaType WHERE type_id = ?")) {
+            preparedStatement.setInt(1, pizzaTypeId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getDouble("price");
+            }
+        } catch (SQLException e) {
+            handleSQLException(e);
+        }
+        return 0.00;
+    }
+
+    public Map<Integer, String> getIngredients() {
+        Map<Integer, String> ingredientsMap = new HashMap<>();
+        try (Statement statement = connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM Ingredient");
+            while (resultSet.next()) {
+                int id = resultSet.getInt("ingredient_id");
+                String name = resultSet.getString("name");
+                ingredientsMap.put(id, name);
+            }
+        } catch (SQLException e) {
+            handleSQLException(e);
+        }
+        return ingredientsMap;
+    }
+
+    // Other methods as needed
+
+    private void handleSQLException(SQLException e) {
+        // Implement appropriate handling, e.g., logging or notifying the user
+        e.printStackTrace();
+    }
+}
+ -- Create PizzaType table
+CREATE TABLE IF NOT EXISTS PizzaType (
+    type_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL DEFAULT 0.00
+);
+
+-- Insert sample pizza types
+INSERT INTO PizzaType (name, price) VALUES
+    ('Margherita', 8.99),
+    ('Pepperoni', 9.99),
+    ('Vegetarian', 10.99),
+    ('Hawaiian', 11.99);
+
+-- Create Ingredient table
+CREATE TABLE IF NOT EXISTS Ingredient (
+    ingredient_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL
+);
+
+-- Insert sample ingredients
+INSERT INTO Ingredient (name) VALUES
+    ('Tomato Sauce'),
+    ('Mozzarella Cheese'),
+    ('Pepperoni'),
+    ('Bell Peppers'),
+    ('Onions'),
+    ('Mushrooms'),
+    ('Pineapple');
+
+-- Create PizzaOrder table
+CREATE TABLE IF NOT EXISTS PizzaOrder (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    pizza_type_id INT,
+    ingredient_id INT,
+    status VARCHAR(50) DEFAULT 'Order',
+    total_price DECIMAL(10, 2) DEFAULT 0.00
+);
